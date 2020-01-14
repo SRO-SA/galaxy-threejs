@@ -1,0 +1,44 @@
+{% spaceless %}
+    <ul class="accordion planet-list" data-accordion>
+		<a id="0" class="center-item-is-parent" data-id="0"><h1>Orouna</h1></a>
+        <div class="menu-title">
+            Sun
+        </div>
+
+        {% for planet in planets %}
+            <li class="accordion-item" data-accordion-item>
+                <a id="{{ planet.id }}" class="accordion-title planet-name" data-id="{{ planet.id }}">{{ planet.name }}</a>
+                <div class="accordion-content" data-tab-content>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>Diameter</td>
+                                <td>{{ planet.diameter|number_format(0, ',') }} km</td>
+                            </tr>
+                            <tr>
+                                <td>Semi-major Axis</td>
+                                <td>{{ planet.distanceFromParent|number_format(0, ',') }} km</td>
+                            </tr>
+                            <tr>
+                                <td>Length Of Day</td>
+                                <td>{{ planet.lengthOfDay }} hrs</td>
+                            </tr>
+                            <tr>
+                                <td>Orbital Period</td>
+                                <td>{{ planet.orbitalPeriod }} days</td>
+                            </tr>
+                            <tr>
+                                <td>Orbit Inclination</td>
+                                <td>{{ planet.orbitalInclination }}&deg;</td>
+                            </tr>
+                            <tr>
+                                <td>Surface Temp</td>
+                                <td>{{ planet.surfaceTemps.mean }} K</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% endspaceless %}

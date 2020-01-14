@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>The Solar System</title>
+
+        <meta name="description" content="This is a project powered by Three.js and WebGL. All objects have been modeled to scale based on real astronomical data. The scene currently renders the sun, all eight planets (nine if you side with Pluto being a planet), each planet's moons, the asteriod belt and thousands of stars.">
+        <meta name="keywords" content="3D Solar System, 3d, 3D, solar system, Three.js, three.js, JavaScript, WebGL, webgl, Sander Blue">
+        <meta name="author" content="Sander Blue">
+
+        <link rel="shortcut icon" href="/solarsystem/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="/solarsystem/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" type="text/css" href="src/assets/css/main.css">
+	</head>
+	<body>
+        <div class="container-main">
+            <div id="menu" class="menu"></div>
+            <div id="moons" class="moons"></div>
+            <div id="current-target-title" class="current-target-title active">Orouna</div>
+            <div id="toggle-effects" class="toggle-effects">
+                <div class="control-holder">
+                    <label for="toggle-orbit-highlight">
+                        <input type="checkbox" id="toggle-orbit-highlight" class="toggle-control">
+                        <span>Orbit Color Effects</span>
+                    </label>
+                </div>
+            </div>
+            <div class="help-section">
+                <i data-open="info" class="fi-info"></i>
+            </div>
+            <div class="intro-screen">
+                <div class="intro-text">
+                    <div class="intro-heading">
+                        <h1>Orouna</h1>
+                    </div>
+                    <div class="inner">
+                        <div class="social-buttons social-buttons-intro-screen">
+                        </div>
+                    </div>
+                    <div id="loading-prompt" class="loading-prompt">
+                        <span>Loading...</span>
+                        <div id="realtime-updates"></div>
+                        <div id="progress-bar" class="progress" role="progressbar" tabindex="0">
+                            <div class="progress-meter"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="solar-system" class="scene"></div>
+        </div>
+
+        <div class="full reveal" id="exampleModal8" data-reveal>
+          <p>Sorry, but this project is currently not viewable from a mobile device.</p>
+          <img src="http://placekitten.com/1920/1280" alt="Intropsective Cage">
+          <button class="close-button" data-close aria-label="Close reveal" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div id="browser-compatibility-modal" class="reveal browser-compatibility-modal">
+            <h3>Browser Compatibility</h3>
+            <p class="lead">This project utilizes some of JavaScript's lastest ES6 features. Currently this project is best viewed using the latest version of <a href="https://www.google.com/chrome/browser/desktop/index.html" class="browser-link" target="_blank">Google Chrome</a> or <a href="https://developer.apple.com/safari/download/" target="_blank" class="browser-link">Safari Technology Preview</a>. At a minimum, your browser must support the following ES6 features. If you can't navigate past this page, this project is not compatible with the browser you're using. Sorry, but this project is currently not viewable from a mobile device.</p>
+            <ul>
+                <li>Classes</li>
+                <li>Arrow Functions</li>
+            </ul>
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <span>
+                <a id="browser-compatibility-got-it" class="button large" data-close="browser-compatibility-modal">Got It</a>
+            </span>
+            <span>
+                <a href="https://kangax.github.io/compat-table/es6/" class="button large es6-feature-link">ES6 feature support</a>
+            </span>
+        </div>
+
+        <div id="info" class="reveal info-modal" data-reveal data-close-on-click="true">
+            <div class="project-info row collapse">
+                <h3>Project Info</h3>
+                <span class="small-3 columns">Universe Scale</span><span class="small-9 columns">6.30957344 &times; 10<sup>-5</sup></span>
+                <span class="small-3 columns">Orbit Scale</span><span class="small-9 columns">6.30957344 &times; 10<sup>-5</sup></span>
+                <span class="small-3 columns">Celestial Scale</span><span class="small-9 columns">1.2589254 &times; 10<sup>-4</sup></span>
+            </div>
+
+            <div class="project-info row collapse">
+                <h3>Controls</h3>
+                <span class="small-12 columns">Use your mouse or trackpad to navigate the scene. To zoom, use a scroll motion. When viewing a planet, you can move around a planet using a click + drag motion.</span>
+            </div>
+
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <a id="info-got-it" class="button large" data-close="info">Close</a>
+        </div>
+
+        <div id="tutorial" class="reveal tutorial-modal" data-reveal data-close-on-click="true">
+            <h3>Controls</h3>
+            <p class="lead">Use your mouse or trackpad to navigate the scene. To zoom, use a scroll motion. When viewing a planet, you can move around a planet using a click + drag motion.</p>
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <a id="tutorial-got-it" class="button large" data-close="tutorial">Got It</a>
+        </div>
+
+        <script type="text/javascript">
+            function isMobile() {
+                return navigator.userAgent.match(/Android/i)
+                    || navigator.userAgent.match(/BlackBerry/i)
+                    || navigator.userAgent.match(/iPhone|iPad|iPod/i)
+                    || navigator.userAgent.match(/Opera Mini/i)
+                    || navigator.userAgent.match(/IEMobile/i)
+                ;
+            }
+            if (isMobile()) {
+                var viewButton = document.getElementById('render-scene');
+
+                if (viewButton) {
+                    viewButton.innerHTML = '<span>Mobile version coming soon. Please view from laptop or desktop.</span>';
+                }
+            }
+        </script>
+        <script type="text/javascript" src="src/app/vendor/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="src/app/vendor/foundation-sites/dist/foundation.min.js"></script>
+        <script type="text/javascript" src="src/app/vendor/stats/build/stats.min.js"></script>
+        <script type="text/javascript" src="src/app/vendor/js-big-decimal/js-big-decimal.js"></script>				
+        <script type="text/javascript" src="src/app/vendor/tweenjs/build/tween.min.js"></script>
+        <script type="text/javascript" src="src/app/vendor/three.js/three.min.js"></script>
+        <script type="text/javascript" src="src/app/vendor/jstat/jstat.js"></script>
+				<script type="text/javascript" src="src/app/vendor/postprocessing/postprocessing.js"></script>			
+        <script data-main="src/app/app" src="src/app/vendor/requirejs/require.js"></script>
+
+	</body>
+</html>
