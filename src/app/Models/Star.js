@@ -231,7 +231,7 @@ function(
         lightMap: texture,
         transparent: true,
         opacity: 1, // 0.8
-        shading: true,
+        flatShading: true,
 				color: this._color
       });
     };

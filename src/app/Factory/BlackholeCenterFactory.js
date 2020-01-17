@@ -22,6 +22,22 @@ function(Scene, Constants, RandomNumberGenerator, Asteroid) {
       this._d2r = Constants.degreesToRadiansRatio;
 			this.maxR = 0;
 			this.minR = Infinity;
+			this.colors = [
+					new THREE.Color(255/255, 255/255, 255/255), //rgb(255, 255, 255), rgb(241, 228, 188), rgb(227, 201, 122), rgb(214, 175, 56)
+					new THREE.Color(241/255, 228/255, 188/255), //rgb(194, 156, 57), rgb(174, 137, 58), rgb(154, 119, 59), rgb(134, 100, 60) 
+					new THREE.Color(227/255, 201/255, 122/255),// , rgb(114, 81, 61), rgb(94, 63, 62), rgb(74, 44, 63), rgb(54, 25, 64), rgb(35, 7, 65)
+					new THREE.Color(214/255, 175/255, 56/255),
+					new THREE.Color(194/255, 156/255, 57/255),
+					new THREE.Color(174/255, 137/255, 58/255),
+					new THREE.Color(154/255, 119/255, 59/255),
+					new THREE.Color(134/255, 100/255, 60/255),
+					new THREE.Color(114/255, 81/255, 61/255),
+					new THREE.Color(94/255, 63/255, 62/255),
+					new THREE.Color(74/255, 44/255, 63/255),
+					new THREE.Color(54/255, 25/255, 64/255),
+					new THREE.Color(35/255, 7/255, 65/255)
+				]
+			this.colorsNum = this.colors.length;
     }
 
     build() {
@@ -36,22 +52,14 @@ function(Scene, Constants, RandomNumberGenerator, Asteroid) {
         var n2 = n / 2; // particles spread in the cube
         color.setRGB(1, 1, 1);
 				//console.log(color.getHexString());
-				var colorArray = [
-					new THREE.Color(167/255, 188/255, 255/255),
-					new THREE.Color(192/255, 209/255, 255/255),
-					new THREE.Color(237/255, 238/255, 255/255),
-					new THREE.Color(255/255, 249/255, 249/255),
-					new THREE.Color(225/255, 241/255, 223/255),
-					new THREE.Color(225/255, 198/255, 144/255),
-					new THREE.Color(255/255, 187/255, 123/255)
-				]
 
         for (var i = 0; i < positions.length; i += 3) {
-          var pos = this.positionAsteroid(null, i);
+					var result = this.positionAndColorAsteroid(null, i); 
+          var pos = result.pos;
           var x = pos.x;
           var y = pos.y;
           var z = pos.z;
-
+					var color = result.color;
           positions[i] = x;
           positions[i + 1] = y;
           positions[i + 2] = z;
@@ -59,9 +67,9 @@ function(Scene, Constants, RandomNumberGenerator, Asteroid) {
 					var colorRand = Math.floor(Math.random() * 7);
           var rgbValue = this._randomNumberGenerator.getRandomArbitraryNumber(1, 20);
 					//console.log(colorArray[colorRand]);
-          colors[i] = colorArray[colorRand].r;
-          colors[i + 1] = colorArray[colorRand].g;
-          colors[i + 2] = colorArray[colorRand].b;
+          colors[i] = color.r;
+          colors[i + 1] = color.g;
+          colors[i + 2] = color.b;
         }
 				//console.log(colors);
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -97,55 +105,48 @@ function(Scene, Constants, RandomNumberGenerator, Asteroid) {
       });
     }
 		
-		sqrt(number) {
-			const bytes = new ArrayBuffer(Float32Array.BYTES_PER_ELEMENT);
-			const floatView = new Float32Array(bytes);
-			const intView = new Uint32Array(bytes);
-			const threehalfs = new bigDecimal("1.5");
-
-			function Q_rsqrt(number) {
-				const x2 = new bigDecimal(bigDecimal.multiply(number.getValue(),"0.5"));
-				floatView[0] = number.getValue();
-				//console.log(floatView[0]);
-				intView[0] = 0x5f3759df - ( intView[0] >> 1 );
-				let y = new bigDecimal(floatView[0]);
-				y = y.multiply( threehalfs.subtract((x2.multiply(y).multiply(y))));
-
-				return y;
-			}
-			var result = parseFloat(Q_rsqrt(new bigDecimal(number.toString())).getValue());
-			console.log("sssss");
-			return 1/result;
-			
-		}
-		
 		getPoint(r, theta, whichWay) {
 			var start = new Date();
-			var way = whichWay === 1 ? Math.PI*0.5 : 0
+			var way = whichWay * Math.PI*0.25;
 			var rSign = Math.random() > 0.5 ? 1 : -1;
-			var randR = rSign * (jStat.gamma.sample(1, 10)/10.0) * 5.6e12;
+			var randRMax = ((Math.abs(r)/69281451938879.52)* (3.6e13 - 5.6e10)) + 5.6e10;
+			var randR = jStat.gamma.sample(1, 2);
+			while(randR > 10) randR = jStat.gamma.sample(1, 2);
+			var randR = rSign * (randR/10) * randRMax;
 			//Math.abs(r) < 10000000000000 ? console.log(r) : null;
+			var color = null;
 			var copyR = r;
 			r += randR;
 			var x1 = -r*Math.cos(theta);
 			var y1 = r*Math.sin(theta);
 			if (copyR >= 66281273296061.04 || copyR <= -66281273296061.04) {
 				var maxSign = Math.random() > 0.5 ? 1 : -1;
-				x1 += maxSign * (jStat.gamma.sample(0.5, 10)/10.0) * 5.6e12;
-				y1 += maxSign * (jStat.gamma.sample(0.5, 10)/10.0) * 5.6e12;
+				x1 += maxSign * (jStat.gamma.sample(1, 5)/10.0) * 3.6e12;
+				y1 += maxSign * (jStat.gamma.sample(1, 5)/10.0) * 3.6e12;
+				color = this.getFarColor(); //TODO
 			}
 			if(Math.abs(copyR) < 12091769016272.819 && theta < Math.PI) {
+				var rConst = copyR * (0.2);
+				color = this.getCoreColor(Math.abs(copyR), 12091769016272.819, false);				//TODO
 				var minSign = Math.random() > 0.5 ? 1 : -1;
 				var minTheta = Math.random() * Math.PI * 2
 				//console.log(copyR);
-				x1 = r * Math.cos(minTheta);
-				y1 = r * Math.sin(minTheta);				
+				var newRandR = jStat.gamma.sample(1, 4);
+				while(newRandR > 10) newRandR = jStat.gamma.sample(1, 4);
+				newRandR = rSign * (newRandR/10) *3.6e12;
+				x1 = (copyR + newRandR + rConst) * Math.cos(minTheta);
+				y1 = (copyR + newRandR + rConst) * Math.sin(minTheta);				
 			}
 			var x = x1*Math.cos(way) + y1*Math.sin(way);
 			var y = -x1*Math.sin(way) + y1*Math.cos(way);
 			var sign = Math.random() > 0.5 ? 1 : -1;
 			var div =  1e-25; //new bigDecimal("10000000000000000000.0");
 			var mult = 5000000000000000000000000.0;; //new bigDecimal("10000000000000000000.0");
+			if(color == null) {
+				color = this.getCoreColor(Math.abs(randR), randRMax, true)
+				color == undefined ? console.log(Math.abs(randR) < randRMax, Math.abs(randR) >= randRMax, randRMax) : null;
+
+			} //TODO
 			var power = -(x*x + y*y);
 			var powerSec = -2*(x*x+y*y);
 			power = power * div;
@@ -156,7 +157,7 @@ function(Scene, Constants, RandomNumberGenerator, Asteroid) {
 			var z = sign * Math.sqrt(temp2)//this.sqrt(BigInt(bigDecimal.floor(temp2.getValue())));
 			//console.log(new Date() - start);
 			//if(Math.abs(x)< 1000  && Math.abs(y)< 1000) console.log(x, y, z);
-			return {x: x, y: y, z: z};
+			return {pos: {x: x, y: y, z: z}, color: color};
 		}
 		
 		createCanvasMaterial(size) {
@@ -178,11 +179,11 @@ function(Scene, Constants, RandomNumberGenerator, Asteroid) {
 			return texture;
 		}
 
-    positionAsteroid(asteroid, count) {
+    positionAndColorAsteroid(asteroid, count) {
       //d = d + (count / count.toFixed(0).length);
       //var randomNumber = this._randomNumberGenerator.getRandomNumberWithinRange(1, 2000) * (Math.random() + 1);
       //var randomOffset = odd ? randomNumber * -1 : randomNumber;
-			var whichWay = count % 1;
+			var whichWay = count % 4;
 			//console.log(whichWay);
       var r = 0;
 			var tmp = Number(this._distanceFromParentMax / 10000n);
@@ -190,19 +191,19 @@ function(Scene, Constants, RandomNumberGenerator, Asteroid) {
 			var sign = Math.random() > 0.5 ? -1 : 1;
 			const A = 22595172258117.7714221623313;
 			var gammaRand = jStat.gamma.sample(0.25, 5);
-			while(gammaRand > 10) gammaRand = jStat.gamma.sample(1, 5);
+			while(gammaRand > 10) gammaRand = jStat.gamma.sample(0.25, 5);
 			gammaRand /= 10
 			var theta = gammaRand * 2.15 * Math.PI;
 			r = sign * (A/(Math.log(0.5*Math.tan(theta/7))));
 			var isSphere = Math.random() > 0.5 ? true : false;
-			if(r < 1e13 && isSphere) {
+			if(Math.abs(r) < 1e13 && isSphere) {
 					var randTheta = Math.random() * 360;
 					var randPhi = Math.random() * 360;
 					var x = r * 1e-6 * Math.cos(randTheta) * Math.sin(randPhi);
 					var y = r * 1e-6 * Math.sin(randTheta) * Math.sin(randPhi);
-					var z = r * 1e-6 * Math.cos(randPhi);		
-					//console.log(x, y, z);
-					var result = {x: x, y: y, z: z};
+					var z = r * 1e-6 * Math.cos(randPhi);
+					var color = this.getCoreColor(Math.abs(r), 1e13, false); //TODO
+					var result = {pos: {x: x, y: y, z: z}, color: color};
 			//r = ((jStat.gamma.sample(0.5, 7)/10.0)* (threeDistanceFromParent - this._distanceFromParentMin * Constants.orbitScale + 1)) + this._distanceFromParentMin * Constants.orbitScale;
       //console.log(jStat.gamma.sample(1, 2));
 			//var theta = count + 1 * Math.random() * this._orbitRadian * this._d2r;
@@ -213,15 +214,48 @@ function(Scene, Constants, RandomNumberGenerator, Asteroid) {
 					this.maxR = Math.abs(r) > this.maxR ? Math.abs(r) : this.maxR;
 					var result = this.getPoint(r, theta, whichWay);
 			}
-      var posX = result.x;
-      var posY = result.y;
-      var posZ = result.z;
+      var posX = result.pos.x;
+      var posY = result.pos.y;
+      var posZ = result.pos.z;
       return {
-        x: posX,
-        y: posY,
-        z: posZ //odd ? posZ * -1 : posZ
+				pos: {
+					x: posX,
+					y: posY,
+					z: posZ //odd ? posZ * -1 : posZ					
+				},
+				color: result.color
       }
     }
+		
+		
+		getCoreColor(r, maxR, isSpiral) {
+			var randIndex = jStat.gamma.sample(0.8, 0.3);
+			while(randIndex >= 1) randIndex = jStat.gamma.sample(0.8, 0.3);
+			//randIndex /=10;
+			randIndex *= this.colorsNum;
+			randIndex = Math.floor(randIndex);
+			if (isSpiral) var index = ((7 +  Math.floor((r/maxR) * 7 )) + randIndex) % this.colorsNum;
+			else var index = (Math.floor((r/maxR) * 7 ) + randIndex) % this.colorsNum ;
+
+			//console.log(Math.floor((r/maxR) * 3 ));
+			return this.colors[index];
+		}
+		
+		getFarColor() {
+			var randIndex = jStat.gamma.sample(2, 1.2);
+			while(randIndex >= this.colorsNum) randIndex = jStat.gamma.sample(2, 1.2);
+			var index = this.colorsNum - 1 - Math.floor(randIndex);
+			index >= this.colorsNum ? console.log(index): null;
+			return this.colors[index];			
+		}
+		
+		getMidColor() {
+			var randIndex = jStat.normal.sample(3.5, 0.3);
+			while(randIndex >= 7) randIndex = jStat.normal.sample(3.5, 0.3);
+			var index = Math.floor(randIndex);
+			//console.log(index);
+			return this.colors[index];			
+		}
   }
 
   return AsteroidBeltFactory;

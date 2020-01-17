@@ -58,7 +58,7 @@ function(
 
   dataRequest.send().then((data)=> {
     solarSystemData = data;
-
+		console.log(data);
     var updateUserInterfaceEvent = new CustomEvent('solarsystem.update.ui', { detail: data });
     var solarSystemFactory = new SolarSystemFactory(solarSystemData);
     var introScreen = $('.intro-screen');
